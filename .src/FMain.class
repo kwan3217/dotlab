@@ -1,0 +1,125 @@
+' Gambas class file
+
+Public Sub _new()
+
+End
+
+Public Sub Form_Open()
+
+End
+Public Function Linterp(x0 As Float, y0 As Float, x1 As Float, y1 As Float, x As Float) As Float
+  
+  Dim t As Float
+  t = (x - x0) / (x1 - x0)
+  Return y0 * (1 - t) + y1 * t
+  
+End
+Public Function mapX(pixX As Integer) As Float
+  
+  Return Linterp(0, -10, DrawingArea1.width, 10, pixX)
+  
+End
+
+Public Function mapY(pixY As Integer) As Float
+  
+  Return Linterp(0, 10, DrawingArea1.height, -10, pixY)
+  
+End
+
+Public Function mapXinv(fltX As Float) As Integer
+  
+  Return Int(Linterp(-10, 0, 10, DrawingArea1.width, fltX))
+  
+End
+
+Public Function mapYinv(fltX As Float) As Integer
+  
+  Return Int(Linterp(10, 0, -10, DrawingArea1.height, fltX))
+  
+End
+
+Public Sub DrawingArea1_Draw()
+  
+  Paint.Begin(DrawingArea1)
+  Paint.Brush = Paint.Color(&H00FF0000)
+  Paint.MoveTo(mapXinv(0), mapYinv(0))
+  Paint.LineTo(mapXinv(Val(lblAX.text)), mapYinv(Val(lblAY.text)))
+  Paint.Stroke
+  Paint.Brush = Paint.Color(&H000000FF)
+  Paint.MoveTo(mapXinv(0), mapYinv(0))
+  Paint.LineTo(mapXinv(Val(lblBX.text)), mapYinv(Val(lblBY.text)))
+  Paint.Stroke
+  Paint.End
+End
+Public Sub updateVectors()
+  
+    Dim ax As Float
+    Dim ay As Float
+    Dim bx As Float
+    Dim by As Float
+    Dim dotp As Float
+    Dim a As Float
+    Dim b As Float
+    Dim ab As Float
+    Dim cosq As Float
+    Dim qdeg As Float
+    Dim qrad As Float
+
+    DrawingArea1.Refresh
+    
+    ax = Val(lblAX.text)
+    ay = Val(lblAY.text)
+    bx = Val(lblBX.text)
+    by = Val(lblBY.text)
+    
+    dotp = ax * bx + ay * by
+    a = Sqr(ax * ax + ay * ay)
+    b = Sqr(bx * bx + by * by)
+    ab = a * b
+    cosq = dotp / ab
+    If cosq > 1 Then 
+      qrad = 0 
+    Else If cosq < -1 Then 
+      qrad = Pi 
+    Else 
+      qrad = ACos(cosq)
+    Endif
+    qdeg = qrad * 180.0 / Pi
+    
+    lblDotp.text = Format(dotp, "0.000")
+    lblA.text = Format(a, "0.000")
+    lblB.text = Format(b, "0.000")
+    lblAB.text = Format(ab, "0.000")
+    lblCosq.text = Format(cosq, "0.000")
+    lblQdeg.text = Format(qdeg, "0.000")
+    lblQrad.text = Format(qrad, "0.000")
+    
+End
+
+Public Sub DrawingArea1_MouseMove()
+  Dim ax As Float
+  Dim ay As Float
+
+  If Mouse.Left Then
+    ax = mapX(Mouse.X)
+    ay = Linterp(0, 10, DrawingArea1.Height, -10, Mouse.Y)
+    lblAX.text = Format(ax, "0.000")
+    lblAY.text = Format(ay, "0.000")
+    updateVectors
+  Endif
+  If Mouse.Right Then
+    ax = mapX(Mouse.X)
+    ay = Linterp(0, 10, DrawingArea1.Height, -10, Mouse.Y)
+    lblBX.text = Format(ax, "0.000")
+    lblBY.text = Format(ay, "0.000")
+    updateVectors
+  Endif
+
+End
+
+
+Public Sub Frame3_MouseDown()
+
+  
+
+End
